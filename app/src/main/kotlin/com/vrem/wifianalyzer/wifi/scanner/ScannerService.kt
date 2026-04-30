@@ -33,6 +33,10 @@ interface ScannerService {
 
     fun wiFiData(): WiFiData
 
+    fun scanHistory(): List<WiFiScanHistoryRow> = listOf()
+
+    fun clearScanHistory() = Unit
+
     fun register(updateNotifier: UpdateNotifier): Boolean
 
     fun unregister(updateNotifier: UpdateNotifier): Boolean
@@ -57,11 +61,12 @@ fun makeScannerService(
     settings: Settings,
 ): ScannerService {
     val cache = Cache()
+    val wiFiScanHistory = WiFiScanHistory()
     val transformer = Transformer(cache)
     val permissionService = PermissionService(mainActivity)
-    val scanner = Scanner(wiFiManagerWrapper, settings, permissionService, transformer)
+    val scanner = Scanner(wiFiManagerWrapper, settings, permissionService, transformer, wiFiScanHistory)
     scanner.periodicScan = PeriodicScan(scanner, handler, settings)
-    scanner.scannerCallback = ScannerCallback(wiFiManagerWrapper, cache)
+    scanner.scannerCallback = ScannerCallback(wiFiManagerWrapper, cache, wiFiScanHistory)
     scanner.scanResultsReceiver = ScanResultsReceiver(mainActivity, scanner.scannerCallback)
     return scanner
 }

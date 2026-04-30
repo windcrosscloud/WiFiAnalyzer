@@ -24,9 +24,12 @@ import com.vrem.wifianalyzer.wifi.manager.WiFiManagerWrapper
 internal class ScannerCallback(
     private val wiFiManagerWrapper: WiFiManagerWrapper,
     private val cache: Cache,
+    private val wiFiScanHistory: WiFiScanHistory,
 ) : Callback {
     override fun onSuccess() {
-        cache.add(wiFiManagerWrapper.scanResults())
+        val scanResults = wiFiManagerWrapper.scanResults()
+        cache.add(scanResults)
+        wiFiScanHistory.add(scanResults)
         cache.wifiInfo = wiFiManagerWrapper.wiFiInfo()
     }
 }

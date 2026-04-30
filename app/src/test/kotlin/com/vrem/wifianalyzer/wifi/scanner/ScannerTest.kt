@@ -43,8 +43,9 @@ class ScannerTest {
     private val scannerCallback: ScannerCallback = mock()
     private val permissionService: PermissionService = mock()
     private val wiFiData: WiFiData = mock()
+    private val wiFiScanHistory: WiFiScanHistory = mock()
     private val periodicScan: PeriodicScan = mock()
-    private val fixture = Scanner(wiFiManagerWrapper, settings, permissionService, transformer)
+    private val fixture = Scanner(wiFiManagerWrapper, settings, permissionService, transformer, wiFiScanHistory)
 
     @Before
     fun setUp() {
@@ -62,6 +63,7 @@ class ScannerTest {
         verifyNoMoreInteractions(settings)
         verifyNoMoreInteractions(wiFiManagerWrapper)
         verifyNoMoreInteractions(transformer)
+        verifyNoMoreInteractions(wiFiScanHistory)
         verifyNoMoreInteractions(periodicScan)
         verifyNoMoreInteractions(permissionService)
         verifyNoMoreInteractions(scanResultsReceiver)

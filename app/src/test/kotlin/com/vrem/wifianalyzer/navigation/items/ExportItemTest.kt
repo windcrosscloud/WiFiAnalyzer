@@ -29,6 +29,7 @@ import com.vrem.wifianalyzer.navigation.NavigationMenu
 import com.vrem.wifianalyzer.wifi.model.WiFiConnection
 import com.vrem.wifianalyzer.wifi.model.WiFiData
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
+import com.vrem.wifianalyzer.wifi.scanner.WiFiScanHistoryRow
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Test
@@ -80,12 +81,14 @@ class ExportItemTest {
         // setup
         val wiFiData: WiFiData = withWiFiData()
         doReturn(wiFiData).whenever(scanner).wiFiData()
+        doReturn(listOf<WiFiScanHistoryRow>()).whenever(scanner).scanHistory()
         doReturn(intent).whenever(export).export(mainActivity, wiFiData.wiFiDetails)
         doReturn(componentName).whenever(intent).resolveActivity(any())
         // execute
         fixture.activate(mainActivity, NavigationMenu.EXPORT)
         // validate
         verify(scanner).wiFiData()
+        verify(scanner).scanHistory()
         verify(export).export(mainActivity, wiFiData.wiFiDetails)
         verify(intent).resolveActivity(mainActivity.packageManager)
     }
@@ -95,10 +98,12 @@ class ExportItemTest {
         // setup
         val wiFiData = WiFiData(listOf(), WiFiConnection.EMPTY)
         doReturn(wiFiData).whenever(scanner).wiFiData()
+        doReturn(listOf<WiFiScanHistoryRow>()).whenever(scanner).scanHistory()
         // execute
         fixture.activate(mainActivity, NavigationMenu.EXPORT)
         // validate
         verify(scanner).wiFiData()
+        verify(scanner).scanHistory()
         assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo("No Data")
     }
 
@@ -107,12 +112,14 @@ class ExportItemTest {
         // setup
         val wiFiData: WiFiData = withWiFiData()
         doReturn(wiFiData).whenever(scanner).wiFiData()
+        doReturn(listOf<WiFiScanHistoryRow>()).whenever(scanner).scanHistory()
         doReturn(intent).whenever(export).export(mainActivity, wiFiData.wiFiDetails)
         doReturn(null).whenever(intent).resolveActivity(any())
         // execute
         fixture.activate(mainActivity, NavigationMenu.EXPORT)
         // validate
         verify(scanner).wiFiData()
+        verify(scanner).scanHistory()
         verify(export).export(mainActivity, wiFiData.wiFiDetails)
         verify(intent).resolveActivity(mainActivity.packageManager)
         assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo("Export not available")
@@ -125,6 +132,7 @@ class ExportItemTest {
         val wiFiData: WiFiData = withWiFiData()
         val expected = "error"
         doReturn(wiFiData).whenever(scanner).wiFiData()
+        doReturn(listOf<WiFiScanHistoryRow>()).whenever(scanner).scanHistory()
         doReturn(intent).whenever(export).export(activity, wiFiData.wiFiDetails)
         doReturn(componentName).whenever(intent).resolveActivity(any())
         doThrow(RuntimeException(expected)).whenever(activity).startActivity(intent)
@@ -132,6 +140,7 @@ class ExportItemTest {
         fixture.activate(activity, NavigationMenu.EXPORT)
         // validate
         verify(scanner).wiFiData()
+        verify(scanner).scanHistory()
         verify(export).export(activity, wiFiData.wiFiDetails)
         verify(intent).resolveActivity(activity.packageManager)
         assertThat(ShadowToast.getTextOfLatestToast()).isEqualTo(expected)

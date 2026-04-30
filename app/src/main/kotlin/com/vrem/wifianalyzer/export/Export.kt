@@ -25,6 +25,7 @@ import com.vrem.wifianalyzer.MainActivity
 import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
 import com.vrem.wifianalyzer.wifi.model.WiFiSignal.Companion.FREQUENCY_UNITS
+import com.vrem.wifianalyzer.wifi.scanner.WiFiScanHistoryRow
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -49,6 +50,21 @@ class Export(
             "FastRoaming" +
             "\n"
 
+    private val scanHistoryHeader =
+        "scan_index," +
+            "scan_time_millis," +
+            "scan_time," +
+            "ssid," +
+            "bssid," +
+            "rssi," +
+            "frequency," +
+            "center_frequency_0," +
+            "center_frequency_1," +
+            "channel_width," +
+            "capabilities," +
+            "scan_result_timestamp_micros" +
+            "\n"
+
     fun export(
         mainActivity: MainActivity,
         wiFiDetails: List<WiFiDetail>,
@@ -63,6 +79,22 @@ class Export(
         val timestamp: String = timestamp(date)
         val title: String = title(context, timestamp)
         val data: String = data(context, wiFiDetails, timestamp)
+        return exportIntent.intent(title, data)
+    }
+
+    fun exportScanHistory(
+        mainActivity: MainActivity,
+        scanHistoryRows: List<WiFiScanHistoryRow>,
+    ): Intent = exportScanHistory(mainActivity, scanHistoryRows, Date())
+
+    fun exportScanHistory(
+        mainActivity: MainActivity,
+        scanHistoryRows: List<WiFiScanHistoryRow>,
+        date: Date,
+    ): Intent {
+        val timestamp: String = timestamp(date)
+        val title: String = scanHistoryTitle(timestamp)
+        val data: String = scanHistoryData(scanHistoryRows)
         return exportIntent.intent(title, data)
     }
 
@@ -81,7 +113,15 @@ class Export(
         return "$title-$timestamp"
     }
 
+    internal fun scanHistoryTitle(timestamp: String): String = "WiFi-Fingerprint-History-$timestamp"
+
+    internal fun scanHistoryData(scanHistoryRows: List<WiFiScanHistoryRow>): String =
+        scanHistoryHeader + scanHistoryRows.joinToString(separator = String.EMPTY, transform = toScanHistoryString())
+
     internal fun timestamp(date: Date): String = SimpleDateFormat(TIME_STAMP_FORMAT, Locale.US).format(date)
+
+    private fun scanTimestamp(scanTimeMillis: Long): String =
+        SimpleDateFormat(TIME_STAMP_FORMAT, Locale.US).format(Date(scanTimeMillis))
 
     private fun toExportString(
         context: Context,
@@ -107,6 +147,32 @@ class Export(
                     "\n"
             }
         }
+
+    private fun toScanHistoryString(): (WiFiScanHistoryRow) -> String =
+        {
+            with(it) {
+                listOf(
+                    scanIndex.toString(),
+                    scanTimeMillis.toString(),
+                    scanTimestamp(scanTimeMillis),
+                    ssid,
+                    bssid,
+                    level.toString(),
+                    frequency.toString(),
+                    centerFrequency0.toString(),
+                    centerFrequency1.toString(),
+                    channelWidth.toString(),
+                    capabilities,
+                    scanResultTimestampMicros.toString(),
+                ).joinToString(",") { value -> value.toCsvCell() } + "\n"
+            }
+        }
+
+    private fun String.toCsvCell(): String {
+        val needsQuote = contains(",") || contains("\"") || contains("\n") || contains("\r")
+        val escaped = replace("\"", "\"\"")
+        return if (needsQuote) "\"$escaped\"" else escaped
+    }
 
     companion object {
         private const val TIME_STAMP_FORMAT = "yyyy/MM/dd-HH:mm:ss"

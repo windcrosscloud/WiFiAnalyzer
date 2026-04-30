@@ -23,6 +23,9 @@ buildscript {
         kotlin_version = '2.3.20'
     }
     repositories {
+        maven { url = 'https://maven.aliyun.com/repository/google' }
+        maven { url = 'https://maven.aliyun.com/repository/central' }
+        maven { url = 'https://maven.aliyun.com/repository/gradle-plugin' }
         google()
         mavenCentral()
         gradlePluginPortal() // Added for plugin resolution
@@ -36,6 +39,9 @@ buildscript {
 
 allprojects {
     repositories {
+        maven { url = 'https://maven.aliyun.com/repository/google' }
+        maven { url = 'https://maven.aliyun.com/repository/central' }
+        maven { url = 'https://maven.aliyun.com/repository/public' }
         google()
         maven {
             url = 'https://maven.google.com'

@@ -29,6 +29,7 @@ internal class Scanner(
     val settings: Settings,
     val permissionService: PermissionService,
     val transformer: Transformer,
+    val wiFiScanHistory: WiFiScanHistory,
 ) : ScannerService {
     private val updateNotifiers: MutableList<UpdateNotifier> = mutableListOf()
 
@@ -54,6 +55,10 @@ internal class Scanner(
     }
 
     override fun wiFiData(): WiFiData = wiFiData
+
+    override fun scanHistory(): List<WiFiScanHistoryRow> = wiFiScanHistory.rows()
+
+    override fun clearScanHistory(): Unit = wiFiScanHistory.clear()
 
     override fun register(updateNotifier: UpdateNotifier): Boolean = updateNotifiers.add(updateNotifier)
 

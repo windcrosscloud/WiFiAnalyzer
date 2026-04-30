@@ -25,6 +25,7 @@ import com.vrem.wifianalyzer.R
 import com.vrem.wifianalyzer.export.Export
 import com.vrem.wifianalyzer.navigation.NavigationMenu
 import com.vrem.wifianalyzer.wifi.model.WiFiDetail
+import com.vrem.wifianalyzer.wifi.scanner.WiFiScanHistoryRow
 
 internal class ExportItem(
     private val export: Export,
@@ -37,11 +38,17 @@ internal class ExportItem(
             MainContext.INSTANCE.scannerService
                 .wiFiData()
                 .wiFiDetails
-        if (wiFiDetails.isEmpty()) {
+        val scanHistoryRows: List<WiFiScanHistoryRow> = MainContext.INSTANCE.scannerService.scanHistory()
+        if (wiFiDetails.isEmpty() && scanHistoryRows.isEmpty()) {
             Toast.makeText(mainActivity, R.string.no_data, Toast.LENGTH_LONG).show()
             return
         }
-        val intent: Intent = export.export(mainActivity, wiFiDetails)
+        val intent: Intent =
+            if (scanHistoryRows.isNotEmpty()) {
+                export.exportScanHistory(mainActivity, scanHistoryRows)
+            } else {
+                export.export(mainActivity, wiFiDetails)
+            }
         if (!exportAvailable(mainActivity, intent)) {
             Toast.makeText(mainActivity, R.string.export_not_available, Toast.LENGTH_LONG).show()
             return

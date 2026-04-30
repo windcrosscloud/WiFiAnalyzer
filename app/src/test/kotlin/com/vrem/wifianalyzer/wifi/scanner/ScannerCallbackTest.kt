@@ -31,13 +31,15 @@ class ScannerCallbackTest {
     private val wiFiManagerWrapper: WiFiManagerWrapper = mock()
     private val cache: Cache = mock()
     private val scanner: Scanner = mock()
+    private val wiFiScanHistory: WiFiScanHistory = mock()
     private val wifiInfo: WifiInfo = mock()
     private val scanResults: List<ScanResult> = listOf()
-    private val fixture: ScannerCallback = ScannerCallback(wiFiManagerWrapper, cache)
+    private val fixture: ScannerCallback = ScannerCallback(wiFiManagerWrapper, cache, wiFiScanHistory)
 
     @After
     fun tearDown() {
         verifyNoMoreInteractions(cache)
+        verifyNoMoreInteractions(wiFiScanHistory)
         verifyNoMoreInteractions(scanner)
         verifyNoMoreInteractions(wiFiManagerWrapper)
     }
@@ -53,6 +55,7 @@ class ScannerCallbackTest {
         verify(wiFiManagerWrapper).scanResults()
         verify(wiFiManagerWrapper).wiFiInfo()
         verify(cache).add(scanResults)
+        verify(wiFiScanHistory).add(scanResults)
         verify(cache).wifiInfo = wifiInfo
     }
 }
